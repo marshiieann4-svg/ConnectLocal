@@ -1,19 +1,55 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { getDefaultRouteForUser, isAdminUser } from '../utils/auth';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [adminName, setAdminName] = useState('Admin');
+
+  const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`).replace(/\/api\/?$/, '');
 
   useEffect(() => {
-    fetchPendingDocs();
+    loadAdminData();
   }, []);
 
-  const fetchPendingDocs = async () => {
+  const loadAdminData = async () => {
+    setLoading(true);
     try {
-      const res = await api.get('/admin/documents/pending');
-      setDocuments(res.data.data);
+      const meRes = await api.get('/auth/me');
+      const me = meRes.data?.user || {};
+
+      if (!isAdminUser(me)) {
+        navigate(getDefaultRouteForUser(me), { replace: true });
+        return;
+      }
+
+      setAdminName(me.name || 'Admin');
+
+      const docsRes = await api.get('/admin/documents/pending');
+      const pendingDocs = Array.isArray(docsRes.data?.data)
+        ? docsRes.data.data
+        : Array.isArray(docsRes.data?.documents)
+          ? docsRes.data.documents
+          : [];
+
+      setDocuments(pendingDocs);
+      setError('');
     } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        window.dispatchEvent(new Event('auth-changed'));
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      const message = error.response?.data?.message || 'Failed to fetch pending documents.';
+      setError(message);
       console.error('Failed to fetch pending documents', error);
     } finally {
       setLoading(false);
@@ -23,19 +59,18 @@ const AdminDashboard = () => {
   const handleVerify = async (id) => {
     try {
       await api.put(`/admin/documents/${id}/verify`);
-      // remove from list or refresh
-      setDocuments(documents.filter(doc => doc._id !== id));
-    } catch {
-      alert('Verification failed');
+      setDocuments((prev) => prev.filter(doc => doc._id !== id));
+    } catch (error) {
+      alert(error.response?.data?.message || 'Verification failed');
     }
   };
 
   const handleReject = async (id) => {
     try {
       await api.put(`/admin/documents/${id}/reject`);
-      setDocuments(documents.filter(doc => doc._id !== id));
-    } catch {
-      alert('Rejection failed');
+      setDocuments((prev) => prev.filter(doc => doc._id !== id));
+    } catch (error) {
+      alert(error.response?.data?.message || 'Rejection failed');
     }
   };
 
@@ -43,7 +78,13 @@ const AdminDashboard = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Admin Dashboard – Pending Verifications</h2>
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 className="mb-0">Admin Panel</h2>
+        <span className="badge bg-dark-subtle text-dark border">Signed in as {adminName}</span>
+      </div>
+
+      <p className="text-muted">Pending verification queue: {documents.length}</p>
+      {error && <div className="alert alert-danger">{error}</div>}
       {documents.length === 0 ? (
         <div className="alert alert-info">No pending documents.</div>
       ) : (
@@ -63,7 +104,7 @@ const AdminDashboard = () => {
                 <td>{doc.userId?.name} ({doc.userId?.phone})</td>
                 <td>{doc.documentType}</td>
                 <td>
-                  <a href={`http://localhost:5000${doc.documentUrl}`} target="_blank" rel="noreferrer">View</a>
+                  <a href={`${backendBaseUrl}${doc.documentUrl}`} target="_blank" rel="noreferrer">View</a>
                 </td>
                 <td>{new Date(doc.createdAt).toLocaleDateString()}</td>
                 <td>

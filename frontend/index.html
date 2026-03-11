@@ -2,9 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d6efd" />
+    <meta name="description" content="ConnectLocal — community help platform connecting helpers with those in need across Eswatini" />
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ConnectLocal" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- iOS splash screens -->
+    <link rel="apple-touch-startup-image" href="/icon.svg" />
+    <!-- Prevent iOS auto-detection styling -->
+    <meta name="format-detection" content="telephone=no" />
+    <title>ConnectLocal</title>
+    <style>
+      /* Prevent iOS Safari zoom on input focus (inputs < 16px trigger zoom) */
+      @supports (-webkit-touch-callout: none) {
+        input, select, textarea { font-size: 16px !important; }
+      }
+      /* Safe area padding for notched iPhones */
+      body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    </style>
   </head>
   <body>
     <div id="root"></div>

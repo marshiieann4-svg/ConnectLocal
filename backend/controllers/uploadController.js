@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const Verification = require('../models/Verification');
+const User = require('../models/User');
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -31,6 +32,22 @@ const upload = multer({
   fileFilter: fileFilter
 }).single('document'); // field name in form
 
+// Profile picture uploader
+const profilePictureUpload = multer({
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB for profile pictures
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files (JPEG, PNG, GIF) are allowed'));
+    }
+  }
+}).single('profilePicture');
+
 // Upload handler
 const uploadDocument = (req, res) => {
   upload(req, res, async (err) => {
@@ -57,4 +74,36 @@ const uploadDocument = (req, res) => {
   });
 };
 
-module.exports = { uploadDocument };
+// Upload profile picture
+const uploadProfilePicture = (req, res) => {
+  profilePictureUpload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    try {
+      const userId = req.user.id;
+      const profilePictureUrl = `/uploads/${req.file.filename}`;
+      
+      // Update user profile picture
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { profilePicture: profilePictureUrl },
+        { new: true }
+      ).select('-__v');
+      
+      res.status(200).json({ 
+        success: true, 
+        message: 'Profile picture uploaded successfully',
+        profilePicture: profilePictureUrl,
+        user
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+};
+
+module.exports = { uploadDocument, uploadProfilePicture };

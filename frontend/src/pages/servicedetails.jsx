@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
+import RatingForm from '../components/RatingForm';
+import SafetyCheckIn from '../components/SafetyCheckIn';
 
 const ServiceDetails = () => {
   const { id } = useParams();
@@ -11,6 +13,8 @@ const ServiceDetails = () => {
   const [proposedAmount, setProposedAmount] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [payment, setPayment] = useState(null);
+  const [initiatingPayment, setInitiatingPayment] = useState(false);
 
   const fetchService = useCallback(async () => {
     try {
@@ -24,9 +28,19 @@ const ServiceDetails = () => {
     }
   }, [id]);
 
+  const fetchPayment = useCallback(async () => {
+    try {
+      const res = await api.get(`/payments/service/${id}`);
+      if (res.data.data) setPayment(res.data.data);
+    } catch {
+      // No payment yet — that's fine
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchService();
-  }, [fetchService]);
+    fetchPayment();
+  }, [fetchService, fetchPayment]);
 
   const handleApply = async (e) => {
     e.preventDefault();
@@ -54,6 +68,20 @@ const ServiceDetails = () => {
     }
   }
 
+  const handleInitiatePayment = async () => {
+    try {
+      setInitiatingPayment(true);
+      const res = await api.post('/payments/initiate', { serviceId: id });
+      setPayment(res.data.data.payment);
+      // Redirect to PayFast
+      window.location.href = res.data.data.paymentUrl;
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to initiate payment');
+    } finally {
+      setInitiatingPayment(false);
+    }
+  };
+
 const currentUserId = localStorage.getItem('userId');
 const isRequester = service?.requesterId?._id === currentUserId;
 const hasApplied = offers.some(o => o.helperId?._id === currentUserId);
@@ -63,13 +91,14 @@ const hasApplied = offers.some(o => o.helperId?._id === currentUserId);
   if (!service) return <div className="alert alert-warning">Service not found</div>;
 
   return (
-    <div className="container mt-4">
+    <div>
+      <div className="cl-page-header">
+        <h2>{service.title}</h2>
+      </div>
       <div className="row">
         <div className="col-md-8">
-          <div className="card mb-4">
-            <div className="card-body">
-              <h2 className="card-title">{service.title}</h2>
-              <p className="card-text">{service.description}</p>
+          <div className="cl-card mb-4">
+              <p style={{ color: 'var(--cl-gray-600)' }}>{service.description}</p>
               <p>
                 <strong>Category:</strong> {service.category}<br />
                 <strong>Location:</strong> {service.location}<br />
@@ -91,7 +120,6 @@ const hasApplied = offers.some(o => o.helperId?._id === currentUserId);
                 </p>
               )}
             </div>
-          </div>
 
           {/* Offers Section */}
           {service.status === 'open' && offers.length > 0 && (
@@ -164,7 +192,7 @@ const hasApplied = offers.some(o => o.helperId?._id === currentUserId);
 
         {/* Sidebar */}
         <div className="col-md-4">
-          <div className="card">
+          <div className="card mb-3">
             <div className="card-body">
               <h5>Quick Actions</h5>
               <Link to="/dashboard" className="btn btn-outline-secondary w-100 mb-2">Back to Dashboard</Link>
@@ -173,6 +201,90 @@ const hasApplied = offers.some(o => o.helperId?._id === currentUserId);
               )}
             </div>
           </div>
+
+          {/* Safety Check-In/Out */}
+          {service.helperId && <SafetyCheckIn service={service} onUpdate={fetchService} />}
+
+          {/* Payment Section */}
+          {service.helperId && service.paymentAmount > 0 && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h6 className="mb-0"><i className="fas fa-credit-card me-2"></i>Payment</h6>
+              </div>
+              <div className="card-body">
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Amount:</span>
+                  <strong>R{service.paymentAmount.toFixed(2)}</strong>
+                </div>
+
+                {!payment && isRequester && (
+                  <button
+                    className="btn btn-success w-100"
+                    onClick={handleInitiatePayment}
+                    disabled={initiatingPayment}
+                  >
+                    {initiatingPayment ? (
+                      <><span className="spinner-border spinner-border-sm me-2"></span>Processing...</>
+                    ) : (
+                      <><i className="fas fa-lock me-2"></i>Pay Now (Escrow)</>
+                    )}
+                  </button>
+                )}
+
+                {payment && (
+                  <div>
+                    <span className={`badge ${
+                      payment.status === 'escrowed' ? 'bg-info' :
+                      payment.status === 'released' ? 'bg-success' :
+                      payment.status === 'refunded' ? 'bg-warning' :
+                      payment.status === 'failed' ? 'bg-danger' : 'bg-secondary'
+                    } w-100 py-2`}>
+                      {payment.status === 'escrowed' && <><i className="fas fa-shield-alt me-1"></i>Funds in Escrow</>}
+                      {payment.status === 'released' && <><i className="fas fa-check-circle me-1"></i>Payment Released</>}
+                      {payment.status === 'refunded' && <><i className="fas fa-undo me-1"></i>Refunded</>}
+                      {payment.status === 'pending' && <><i className="fas fa-clock me-1"></i>Payment Pending</>}
+                      {payment.status === 'failed' && <><i className="fas fa-times-circle me-1"></i>Payment Failed</>}
+                    </span>
+                    {payment.status === 'escrowed' && (
+                      <small className="text-muted d-block mt-2">
+                        Funds held securely until service is completed.
+                      </small>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Rating Form — visible when service is completed */}
+          {service.status === 'completed' && service.helper && !isRequester && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h6 className="mb-0"><i className="fas fa-star me-2"></i>Rate the Requester</h6>
+              </div>
+              <div className="card-body">
+                <RatingForm
+                  serviceId={service._id}
+                  ratedId={service.requesterId?._id}
+                  onRated={fetchService}
+                />
+              </div>
+            </div>
+          )}
+          {service.status === 'completed' && service.helper && isRequester && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h6 className="mb-0"><i className="fas fa-star me-2"></i>Rate the Helper</h6>
+              </div>
+              <div className="card-body">
+                <RatingForm
+                  serviceId={service._id}
+                  ratedId={service.helper?._id}
+                  onRated={fetchService}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

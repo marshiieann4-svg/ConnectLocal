@@ -2,6 +2,34 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+const normalizeType = (value, fallback = '') => String(value || fallback).toLowerCase();
+
+const buildAuthUser = (user) => {
+    const accountType = normalizeType(user.accountType);
+    const userType = normalizeType(user.userType);
+    const role = normalizeType(user.role);
+
+    const resolvedAccountType = accountType === 'admin' || userType === 'admin' || role === 'admin'
+        ? 'admin'
+        : accountType || userType || 'individual';
+
+    return {
+        id: user._id,
+        phone: user.phone,
+        name: user.name,
+        email: user.email,
+        accountType: resolvedAccountType,
+        userType: user.userType || user.accountType || null,
+        role: user.role,
+        organizationName: user.organizationName,
+        registrationNumber: user.registrationNumber,
+        ward: user.ward,
+        verificationLevel: user.verificationLevel,
+        averageRating: user.averageRating,
+        communityPoints: user.communityPoints
+    };
+};
+
 // Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -40,7 +68,9 @@ const registerUser = async (req, res) => {
             });
         }
 
-        if (accountType !== 'individual' && !organizationName) {
+        const organizationTypes = ['organization', 'home_care', 'dropin_centre'];
+
+        if (organizationTypes.includes(accountType) && !organizationName) {
             return res.status(400).json({
                 success: false,
                 message: 'Organization name is required for organizations/care centres'
@@ -63,7 +93,7 @@ const registerUser = async (req, res) => {
             email,
             accountType,
             role: accountType === 'individual' ? role : null,
-            organizationName: accountType !== 'individual' ? organizationName : undefined,
+            organizationName: organizationTypes.includes(accountType) ? organizationName : undefined,
             registrationNumber,
             ward,
             verificationLevel: 0,
@@ -80,27 +110,37 @@ const registerUser = async (req, res) => {
             success: true,
             message: 'User registered successfully',
             token,
-            user: {
-                id: user._id,
-                phone: user.phone,
-                name: user.name,
-                email: user.email,
-                accountType: user.accountType,
-                role: user.role,
-                organizationName: user.organizationName,
-                registrationNumber: user.registrationNumber,
-                ward: user.ward,
-                verificationLevel: user.verificationLevel,
-                averageRating: user.averageRating,
-                communityPoints: user.communityPoints
-            }
+            user: buildAuthUser(user)
         });
 
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error details:', {
+            message: error.message,
+            code: error.code,
+            keys: error.keyValue,
+            errors: error.errors
+        });
+        
+        // Duplicate phone number
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Phone number already registered'
+            });
+        }
+        
+        // Validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error: ' + messages.join(', ')
+            });
+        }
+        
         res.status(500).json({
             success: false,
-            message: 'Server error',
+            message: 'Server error during registration',
             error: error.message
         });
     }
@@ -128,20 +168,7 @@ const loginUser = async (req, res) => {
             success: true,
             message: 'Login successful',
             token,
-            user: {
-                id: user._id,
-                phone: user.phone,
-                name: user.name,
-                email: user.email,
-                accountType: user.accountType,
-                role: user.role,
-                organizationName: user.organizationName,
-                registrationNumber: user.registrationNumber,
-                ward: user.ward,
-                verificationLevel: user.verificationLevel,
-                averageRating: user.averageRating,
-                communityPoints: user.communityPoints
-            }
+            user: buildAuthUser(user)
         });
 
     } catch (error) {

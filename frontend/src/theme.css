@@ -1,0 +1,624 @@
+/* ===== ConnectLocal Design System — Blue & White ===== */
+
+:root {
+  --cl-blue: #1a73e8;
+  --cl-blue-dark: #1557b0;
+  --cl-blue-light: #e8f0fe;
+  --cl-blue-50: #f0f6ff;
+  --cl-white: #ffffff;
+  --cl-gray-50: #f8fafc;
+  --cl-gray-100: #f1f5f9;
+  --cl-gray-200: #e2e8f0;
+  --cl-gray-300: #cbd5e1;
+  --cl-gray-500: #64748b;
+  --cl-gray-700: #334155;
+  --cl-gray-900: #0f172a;
+  --cl-success: #10b981;
+  --cl-warning: #f59e0b;
+  --cl-danger: #ef4444;
+  --cl-radius: 12px;
+  --cl-radius-sm: 8px;
+  --cl-radius-lg: 16px;
+  --cl-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --cl-shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --cl-shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+  --cl-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Base ===== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--cl-gray-900);
+  background-color: var(--cl-gray-50);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Cards ===== */
+.cl-card {
+  background: var(--cl-white);
+  border: 1px solid var(--cl-gray-100);
+  border-radius: var(--cl-radius-lg);
+  box-shadow: var(--cl-shadow);
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.cl-card:hover {
+  box-shadow: var(--cl-shadow-md);
+  border-color: var(--cl-gray-200);
+  transform: translateY(-2px);
+}
+
+/* Stat card */
+.cl-stat-card {
+  background: var(--cl-white);
+  border: 1px solid var(--cl-gray-100);
+  border-radius: var(--cl-radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.cl-stat-card:hover {
+  box-shadow: var(--cl-shadow-md);
+  border-color: var(--cl-blue-light);
+  transform: translateY(-3px);
+}
+.cl-stat-card .cl-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+.cl-stat-card .cl-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cl-gray-900);
+  line-height: 1.2;
+}
+.cl-stat-card .cl-stat-label {
+  font-size: 0.8rem;
+  color: var(--cl-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+/* ===== Buttons ===== */
+.btn-cl-primary {
+  background: linear-gradient(135deg, var(--cl-blue) 0%, #4a90e2 100%);
+  color: white;
+  border: none;
+  border-radius: var(--cl-radius);
+  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-cl-primary:hover {
+  background: linear-gradient(135deg, var(--cl-blue-dark) 0%, var(--cl-blue) 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 115, 232, 0.35);
+}
+.btn-cl-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
+}
+.btn-cl-outline {
+  background: transparent;
+  color: var(--cl-blue);
+  border: 1.5px solid var(--cl-blue);
+  border-radius: var(--cl-radius);
+  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.3s ease;
+}
+.btn-cl-outline:hover {
+  background: var(--cl-blue-light);
+  color: var(--cl-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
+}
+.btn-cl-outline:active {
+  transform: translateY(0);
+}
+.btn-cl-ghost {
+  background: transparent;
+  color: var(--cl-gray-500);
+  border: none;
+  border-radius: var(--cl-radius-sm);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all var(--cl-transition);
+}
+.btn-cl-ghost:hover {
+  background: var(--cl-gray-100);
+  color: var(--cl-gray-700);
+}
+
+/* ===== Sidebar ===== */
+.cl-sidebar {
+  background: var(--cl-white);
+  border-right: 1px solid var(--cl-gray-200);
+  width: 260px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.cl-sidebar-brand {
+  padding: 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--cl-gray-200);
+}
+.cl-sidebar-brand h5 {
+  font-weight: 800;
+  color: var(--cl-blue);
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+.cl-sidebar-brand small {
+  color: var(--cl-gray-500);
+  font-size: 0.8rem;
+}
+.cl-sidebar-nav {
+  flex: 1;
+  padding: 0.75rem 0;
+}
+.cl-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.25rem;
+  color: var(--cl-gray-500);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 0;
+  margin: 1px 0;
+  transition: all var(--cl-transition);
+  border-left: 3px solid transparent;
+}
+.cl-nav-link i {
+  width: 20px;
+  text-align: center;
+  margin-right: 0.75rem;
+  font-size: 0.95rem;
+}
+.cl-nav-link:hover {
+  background: var(--cl-blue-50);
+  color: var(--cl-blue);
+  border-left-color: var(--cl-gray-200);
+}
+.cl-nav-link.active {
+  background: var(--cl-blue-light);
+  color: var(--cl-blue);
+  font-weight: 600;
+  border-left-color: var(--cl-blue);
+}
+.cl-nav-section {
+  padding: 0.5rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cl-gray-300);
+  font-weight: 700;
+  margin-top: 0.75rem;
+}
+.cl-sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--cl-gray-200);
+}
+
+/* ===== Top Bar (mobile) ===== */
+.cl-topbar {
+  background: var(--cl-white);
+  border-bottom: 1px solid var(--cl-gray-200);
+  padding: 0.75rem 1rem;
+}
+.cl-topbar-brand {
+  font-weight: 700;
+  color: var(--cl-blue);
+  font-size: 1.1rem;
+}
+
+/* ===== Main Content ===== */
+.cl-main {
+  flex: 1;
+  padding: 1.5rem;
+  background: var(--cl-gray-50);
+}
+@media (min-width: 768px) {
+  .cl-main {
+    padding: 2rem;
+  }
+}
+
+/* ===== Page Header ===== */
+.cl-page-header {
+  margin-bottom: 1.5rem;
+}
+.cl-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cl-gray-900);
+  margin: 0;
+}
+.cl-page-header p {
+  color: var(--cl-gray-500);
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+/* ===== Auth Pages (Login/Register) ===== */
+.cl-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--cl-blue) 0%, #4f9cf7 100%);
+  padding: 1rem;
+}
+.cl-auth-card {
+  background: var(--cl-white);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem 2rem;
+}
+.cl-auth-card .cl-auth-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.cl-auth-card .cl-auth-logo h2 {
+  font-weight: 800;
+  color: var(--cl-blue);
+  font-size: 1.6rem;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.cl-auth-card .cl-auth-logo p {
+  color: var(--cl-gray-500);
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+/* ===== Form Inputs ===== */
+.cl-input {
+  border: 1.5px solid var(--cl-gray-200);
+  border-radius: var(--cl-radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: var(--cl-gray-900);
+  background: var(--cl-gray-50);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  width: 100%;
+}
+.cl-input:focus {
+  border-color: var(--cl-blue);
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+  background: var(--cl-white);
+  outline: none;
+}
+.cl-input::placeholder {
+  color: var(--cl-gray-300);
+}
+.cl-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cl-gray-700);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+.cl-select {
+  border: 1.5px solid var(--cl-gray-200);
+  border-radius: var(--cl-radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: var(--cl-gray-900);
+  background: var(--cl-gray-50);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  width: 100%;
+  appearance: auto;
+}
+.cl-select:focus {
+  border-color: var(--cl-blue);
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+  background: var(--cl-white);
+  outline: none;
+}
+
+/* ===== Service Cards ===== */
+.cl-service-card {
+  background: var(--cl-white);
+  border: 1px solid var(--cl-gray-100);
+  border-radius: var(--cl-radius-lg);
+  padding: 0;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  height: 100%;
+  overflow: hidden;
+}
+.cl-service-card:hover {
+  box-shadow: var(--cl-shadow-lg);
+  border-color: rgba(26, 115, 232, 0.3);
+  transform: translateY(-4px);
+}
+.cl-service-card .cl-service-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--cl-gray-900);
+  margin-bottom: 0.5rem;
+}
+.cl-service-card .cl-service-meta {
+  font-size: 0.82rem;
+  color: var(--cl-gray-500);
+}
+.cl-service-card .cl-service-meta i {
+  color: var(--cl-blue);
+  width: 16px;
+}
+.cl-service-card-body {
+  padding: 1.5rem;
+}
+
+/* ===== Badges / Tags ===== */
+.cl-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  gap: 0.25rem;
+}
+.cl-badge-blue {
+  background: var(--cl-blue-light);
+  color: var(--cl-blue);
+}
+.cl-badge-green {
+  background: #d1fae5;
+  color: #059669;
+}
+.cl-badge-yellow {
+  background: #fef3c7;
+  color: #d97706;
+}
+.cl-badge-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ===== Filter Bar ===== */
+.cl-filter-bar {
+  background: var(--cl-white);
+  border: 1px solid var(--cl-gray-100);
+  border-radius: var(--cl-radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--cl-shadow);
+}
+
+/* ===== Footer ===== */
+.cl-footer {
+  background: var(--cl-white);
+  border-top: 1px solid var(--cl-gray-200);
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+.cl-footer p {
+  color: var(--cl-gray-300);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+/* ===== Overlay ===== */
+.cl-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 1040;
+  backdrop-filter: blur(4px);
+  animation: cl-overlayIn 0.25s ease;
+}
+@keyframes cl-overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== Sidebar slide animation ===== */
+.cl-sidebar-mobile {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  animation: cl-slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes cl-slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* ===== Scrollbar ===== */
+.cl-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.cl-sidebar::-webkit-scrollbar-thumb {
+  background: var(--cl-gray-200);
+  border-radius: 4px;
+}
+
+/* ===== Loading Spinner ===== */
+.cl-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+.cl-spinner::after {
+  content: '';
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--cl-gray-200);
+  border-top-color: var(--cl-blue);
+  border-radius: 50%;
+  animation: cl-spin 0.6s linear infinite;
+}
+@keyframes cl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Empty State ===== */
+.cl-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--cl-gray-500);
+}
+.cl-empty i {
+  font-size: 2.5rem;
+  color: var(--cl-gray-200);
+  margin-bottom: 1rem;
+}
+
+/* ===== Animations ===== */
+@keyframes cl-fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cl-animate-in {
+  animation: cl-fadeIn 0.3s ease-out;
+}
+
+/* ===== Override Bootstrap defaults to match theme ===== */
+.btn-primary {
+  background-color: var(--cl-blue) !important;
+  border-color: var(--cl-blue) !important;
+  border-radius: var(--cl-radius-sm);
+}
+.btn-primary:hover {
+  background-color: var(--cl-blue-dark) !important;
+  border-color: var(--cl-blue-dark) !important;
+}
+.btn-outline-primary {
+  color: var(--cl-blue) !important;
+  border-color: var(--cl-blue) !important;
+  border-radius: var(--cl-radius-sm);
+}
+.btn-outline-primary:hover {
+  background-color: var(--cl-blue) !important;
+  border-color: var(--cl-blue) !important;
+  color: white !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--cl-blue);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+a {
+  color: var(--cl-blue);
+}
+a:hover {
+  color: var(--cl-blue-dark);
+}
+.card {
+  border-radius: var(--cl-radius);
+  border-color: var(--cl-gray-200);
+}
+.alert-info {
+  background: var(--cl-blue-light);
+  border-color: var(--cl-blue);
+  color: var(--cl-blue-dark);
+}
+
+/* ===== Profile Tabs ===== */
+.nav-tabs .nav-link.active {
+  color: var(--cl-blue) !important;
+  border-bottom: 2px solid var(--cl-blue);
+  font-weight: 600;
+}
+.nav-tabs .nav-link {
+  color: var(--cl-gray-500);
+  border: none;
+  padding: 0.75rem 1rem;
+  transition: color var(--cl-transition);
+}
+.nav-tabs .nav-link:hover {
+  color: var(--cl-blue);
+}
+
+/* ===== Pagination ===== */
+.page-item.active .page-link {
+  background-color: var(--cl-blue);
+  border-color: var(--cl-blue);
+}
+.page-link {
+  color: var(--cl-blue);
+  border-radius: var(--cl-radius-sm);
+}
+.page-link:hover {
+  color: var(--cl-blue-dark);
+  background-color: var(--cl-blue-light);
+}
+
+/* ===== Body Smoothing ===== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--cl-gray-50);
+  color: var(--cl-gray-900);
+}
+
+/* ===== Selection Color ===== */
+::selection {
+  background: var(--cl-blue-light);
+  color: var(--cl-blue-dark);
+}
+
+/* ===== Extra Card Polish ===== */
+.cl-card,
+.cl-stat-card,
+.cl-service-card,
+.cl-filter-bar,
+.cl-auth-card {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Textarea smoothing */
+textarea.cl-input {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+/* ===== Smooth Bootstrap .card override ===== */
+.card {
+  border-radius: var(--cl-radius-lg) !important;
+  border-color: var(--cl-gray-100) !important;
+  box-shadow: var(--cl-shadow);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+.card:hover {
+  box-shadow: var(--cl-shadow-md);
+}
+
+/* ===== Smooth scrolling ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== Better focus outline for accessibility ===== */
+*:focus-visible {
+  outline: 2px solid var(--cl-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

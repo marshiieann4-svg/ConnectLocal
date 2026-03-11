@@ -104,25 +104,49 @@ const getUserPoints = async (req, res) => {
 const getLeaderboard = async (req, res) => {
   try {
     const { period = 'all', ward } = req.query;
+    const escapedWard = String(ward || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wardRegex = escapedWard ? new RegExp(escapedWard, 'i') : null;
+
+    // All-time leaderboard should always be available even before any transactions exist.
+    if (period === 'all') {
+      const query = { isActive: true };
+      if (wardRegex) query.ward = wardRegex;
+
+      const users = await User.find(query)
+        .select('name phone points ward profilePicture')
+        .sort({ points: -1, createdAt: 1 })
+        .limit(50)
+        .lean();
+
+      const normalized = users.map((user) => ({
+        ...user,
+        points: Number(user.points || 0)
+      }));
+
+      return res.json({ success: true, data: normalized });
+    }
+
     let dateFilter = {};
     const now = new Date();
     if (period === 'week') {
-      const weekAgo = new Date(now.setDate(now.getDate() - 7));
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 7);
       dateFilter = { createdAt: { $gte: weekAgo } };
     } else if (period === 'month') {
-      const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+      const monthAgo = new Date(now);
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
       dateFilter = { createdAt: { $gte: monthAgo } };
     }
 
-    // Aggregate points per user from transactions
     const leaderboard = await PointTransaction.aggregate([
       { $match: dateFilter },
       { $group: { _id: '$userId', totalPoints: { $sum: '$points' } } },
       { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } },
       { $unwind: '$user' },
-      { $match: { 'user.isActive': true, ...(ward ? { 'user.ward': ward } : {}) } },
+      { $match: { 'user.isActive': true, ...(wardRegex ? { 'user.ward': wardRegex } : {}) } },
       {
         $project: {
+          _id: '$user._id',
           name: '$user.name',
           phone: '$user.phone',
           points: '$totalPoints',

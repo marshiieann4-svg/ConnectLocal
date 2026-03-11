@@ -5,7 +5,8 @@ const { organization } = require('../middleware/organization');
 const {
   createAssignment,
   getAssignments,
-  updateAssignment
+  updateAssignment,
+  getAssignmentById
 } = require('../controllers/assignmentController');
 
 router.use(protect, organization);
@@ -15,6 +16,7 @@ router.route('/')
   .get(getAssignments);
 
 router.route('/:id')
+  .get(getAssignmentById)
   .put(updateAssignment);
 
 module.exports = router;

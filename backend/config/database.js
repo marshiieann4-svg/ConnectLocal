@@ -2,10 +2,15 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
+        const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+        if (!mongoUri) {
+            throw new Error('Missing MongoDB URI. Set MONGODB_URI (or MONGO_URI) in backend/.env');
+        }
+
         console.log('🔍 Attempting to connect to MongoDB...');
-        console.log('📍 URI:', process.env.MONGODB_URI.replace(/:[^:]*@/, ':****@'));
+        console.log('📍 URI:', mongoUri.replace(/:[^:]*@/, ':****@'));
         
-        const conn = await mongoose.connect(process.env.MONGODB_URI, {
+        const conn = await mongoose.connect(mongoUri, {
             // ⚡ CRITICAL: Increase timeouts
             serverSelectionTimeoutMS: 30000,  // 30 seconds (was 5000)
             socketTimeoutMS: 45000,            // 45 seconds
@@ -59,9 +64,12 @@ const connectDB = async () => {
         }
         console.error('\n');
         
-        // Retry logic
-        console.log('🔄 Retrying in 5 seconds...');
-        setTimeout(connectDB, 5000);
+        // Retry only for transient connection errors; config errors should fail fast.
+        const isConfigError = /Missing MongoDB URI/i.test(error.message || '');
+        if (!isConfigError) {
+            console.log('🔄 Retrying in 5 seconds...');
+            setTimeout(connectDB, 5000);
+        }
     }
 };
 

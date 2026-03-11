@@ -1,13 +1,15 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import AdminRoute from './components/AdminRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateService from './pages/CreateService';
 import Verification from './pages/Verification';
 import Profile from './pages/Profile';
-import AdminDashboard from './pages/AdminDashboard';
+import SearchHelpers from './pages/SearchHelpers';
+import AdminDashboard from './pages/adminDashboard';
 import ServiceDetails from './pages/ServiceDetails';
 import OrgDashboard from './pages/OrgDashboard';
 import Clients from './pages/Clients';
@@ -18,6 +20,9 @@ import AssignmentDetail from './pages/AssignmentDetail';
 import Leaderboard from './pages/Leaderboard';
 import ConversationsList from './components/chat/ConversationsList';
 import ChatWindow from './components/chat/ChatWindow';
+import TransactionHistory from './pages/TransactionHistory';
+import PaymentResult from './pages/PaymentResult';
+import { getDefaultRouteForUser, getStoredUser } from './utils/auth';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -26,6 +31,8 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  const rootDestination = getDefaultRouteForUser(getStoredUser());
+
   return (
     <BrowserRouter>
       <Routes>
@@ -75,13 +82,33 @@ function App() {
           }
         />
         <Route
-          path="/admin"
+        path="/profile/:userId"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Profile />
+            </Layout>
+          </ProtectedRoute>
+          }
+ />
+        <Route
+          path="/search-helpers"
           element={
             <ProtectedRoute>
               <Layout>
-                <AdminDashboard />
+                <SearchHelpers />
               </Layout>
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <Layout>
+                <AdminDashboard />
+              </Layout>
+            </AdminRoute>
           }
         />
         <Route
@@ -186,12 +213,44 @@ function App() {
           }
         />
 
+        {/* Payment routes */}
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TransactionHistory />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/:id/success"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PaymentResult />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/:id/cancel"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PaymentResult />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Root redirect */}
         <Route
           path="/"
           element={
             localStorage.getItem('token') ? (
-              <Navigate to="/dashboard" replace />
+              <Navigate to={rootDestination} replace />
             ) : (
               <Navigate to="/login" replace />
             )
